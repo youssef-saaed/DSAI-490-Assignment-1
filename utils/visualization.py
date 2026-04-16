@@ -99,3 +99,25 @@ def plot_denoising_results(model, noisy_dataset, n=5):
         plt.axis("off")
     plt.suptitle("Denoising Performance")
     plt.show()
+    
+def plot_training_loss(history, is_vae=False, title="Training Loss"):
+    """
+    Plots the training loss from a Keras History object.
+    Tracks total loss, and for VAEs, splits out reconstruction and KL loss.
+    """
+    plt.figure(figsize=(8, 5))
+    
+    if is_vae:
+        plt.plot(history.history['loss'], label='Total Loss', linewidth=2)
+        plt.plot(history.history['reconstruction_loss'], label='Recon Loss', linestyle='--')
+        plt.plot(history.history['kl_loss'], label='KL Loss', linestyle=':')
+    else:
+        # Standard Autoencoder just uses MSE
+        plt.plot(history.history['loss'], label='Total Loss (MSE)', linewidth=2)
+        
+    plt.title(title)
+    plt.xlabel("Epochs")
+    plt.ylabel("Loss")
+    plt.legend()
+    plt.grid(True, alpha=0.3)
+    plt.show()
