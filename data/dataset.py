@@ -19,10 +19,19 @@ def add_gaussian_noise(img, noise_factor=0.2):
 def get_tf_dataset(data_dir, batch_size=32, image_size=(64, 64), is_noisy=False, noise_factor=0.2):
     """
     Creates a tf.data.Dataset. 
-    data_dir can be a specific anatomical folder (e.g., '.../Hand') or the root for combined data.
+    data_dir can be a specific anatomical folder or the root for combined data.
     """
-    # Find all jpegs in directory (and subdirectories if root is provided)
-    file_pattern = os.path.join(data_dir, '**', '*.jpeg')
+    # Kaggle Filesystem Fix: Check if data_dir contains subdirectories
+    subdirs = [d for d in os.listdir(data_dir) if os.path.isdir(os.path.join(data_dir, d))]
+    
+    if len(subdirs) > 0:
+        # Root directory (Combined Data): images are one folder down (e.g., Medical-MNIST/Hand/*.jpeg)
+        file_pattern = os.path.join(data_dir, '*', '*.jpeg')
+    else:
+        # Specific part directory: images are directly inside (e.g., AbdomenCT/*.jpeg)
+        file_pattern = os.path.join(data_dir, '*.jpeg')
+        
+    # list_files will now safely find files without relying on the recursive **
     dataset = tf.data.Dataset.list_files(file_pattern, shuffle=True)
 
     def process_path(file_path):
